@@ -1,0 +1,42 @@
+{
+	"name": "errorrows_handling",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_inputemployeedata_copy1",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_SQLDBEmployeedatabad",
+						"type": "DatasetReference"
+					},
+					"name": "badrows"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_SQLDBEmployeedata",
+						"type": "DatasetReference"
+					},
+					"name": "goodrows"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ConditionalSplit1"
+				},
+				{
+					"name": "DerivedColumn1"
+				}
+			],
+			"script": "source(output(\n\t\t{Emp Id} as string,\n\t\tName as string,\n\t\t{Dept Id} as string,\n\t\tSalary as string,\n\t\t{Joining Date} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> source1\nsource1 split(isNull(toDate({Joining Date},'dd-mm-yy')),\n\tdisjoint: false) ~> ConditionalSplit1@(errorrows, goodrows)\nConditionalSplit1@goodrows derive({Joining Date} = toDate({Joining Date},'dd-mm-yy')) ~> DerivedColumn1\nConditionalSplit1@errorrows sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\temp_id as integer,\n\t\tname as string,\n\t\tdep_id as integer,\n\t\tsalary as decimal(18,0),\n\t\tjoining_date as string\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = {Emp Id},\n\t\tname = Name,\n\t\tdep_id = {Dept Id},\n\t\tsalary = Salary,\n\t\tjoining_date = {Joining Date}\n\t),\n\tpartitionBy('hash', 1)) ~> badrows\nDerivedColumn1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\temp_id = {Emp Id},\n\t\tname = Name,\n\t\tdep_id = {Dept Id},\n\t\tsalary = Salary,\n\t\tjoining_date = {Joining Date}\n\t),\n\tpartitionBy('hash', 1)) ~> goodrows"
+		}
+	}
+}

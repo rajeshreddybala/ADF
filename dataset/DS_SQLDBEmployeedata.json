@@ -1,0 +1,17 @@
+{
+	"name": "DS_SQLDBEmployeedata",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQLDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employeedata"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

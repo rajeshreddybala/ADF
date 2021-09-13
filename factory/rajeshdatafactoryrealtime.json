@@ -1,0 +1,9 @@
+{
+	"name": "rajeshdatafactoryrealtime",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "f24f0d8b-7b1f-4dad-bcce-6ac84ad15519",
+		"tenantId": "e7e38df8-a0b5-47a0-8ad8-98106c9457b4"
+	}
+}
